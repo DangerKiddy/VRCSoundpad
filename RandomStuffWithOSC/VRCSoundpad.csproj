@@ -12,9 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="SharpOSC">
-      <HintPath>..\..\..\..\Desktop\SharpOSC.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>

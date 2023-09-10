@@ -1,9 +1,4 @@
-﻿using SharpOSC;
-using SoundpadConnector;
-using System;
-using System.Net;
-using System.Net.Sockets;
-
+﻿using SoundpadConnector;
 namespace VRCSoundpad
 {
     internal class Program
