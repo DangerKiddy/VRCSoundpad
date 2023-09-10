@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33723.286
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRCSoundpad", "RandomStuffWithOSC\VRCSoundpad.csproj", "{F0FBF94A-FE52-495D-B565-AB1F37CA6565}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VRCSoundpad", "VRCSoundpad\VRCSoundpad.csproj", "{F0FBF94A-FE52-495D-B565-AB1F37CA6565}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

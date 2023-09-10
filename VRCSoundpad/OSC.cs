@@ -12,12 +12,22 @@ namespace VRCSoundpad
         private static Socket receiver;
         public static void Init()
         {
-            receiver = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            receiver.Bind(new IPEndPoint(IPAddress.Parse(ipAddress), port));
+            try
+            {
+                receiver = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                receiver.Bind(new IPEndPoint(IPAddress.Parse(ipAddress), port));
+            }
+            catch
+            {
+                Console.WriteLine($"Failed to create listen socket! (Another app listening on {ipAddress}:{port} already?)");
+            }
         }
 
         public static void Listen()
         {
+            if (receiver == null)
+                return;
+
             while (true)
             {
                 recvThreadCts?.Cancel();

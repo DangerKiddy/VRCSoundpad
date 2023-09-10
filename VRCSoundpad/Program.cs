@@ -13,6 +13,8 @@ namespace VRCSoundpad
         {
             InitSoundpad();
             onSoundpadInit += InitOSC;
+
+            Console.ReadKey();
         }
 
         private static void InitSoundpad()
