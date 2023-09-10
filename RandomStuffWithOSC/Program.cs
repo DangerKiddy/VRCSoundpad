@@ -7,20 +7,26 @@ namespace VRCSoundpad
 
         private static int totalCountOfSounds = 0;
         private static Random random = new Random();
+        private delegate void OnSoundpadInit();
+        private static OnSoundpadInit onSoundpadInit;
         static void Main(string[] args)
         {
             InitSoundpad();
-            OSC.Init();
-            OSC.Listen();
+            onSoundpadInit += InitOSC;
         }
 
         private static void InitSoundpad()
         {
             soundpad = new Soundpad();
-            soundpad.ConnectAsync();
-            Thread.Sleep(1000);
+            soundpad.StatusChanged += SoundpadOnStatusChanged;
 
-            totalCountOfSounds = (int)soundpad.GetSoundFileCount().Result.Value;
+            soundpad.ConnectAsync();
+        }
+
+        private static void InitOSC()
+        {
+            OSC.Init();
+            OSC.Listen();
         }
 
         private static void SoundpadOnStatusChanged(object sender, EventArgs e)
@@ -29,7 +35,9 @@ namespace VRCSoundpad
 
             if (soundpad.ConnectionStatus == ConnectionStatus.Connected)
             {
-                soundpad.PlaySound(1);
+                totalCountOfSounds = (int)soundpad.GetSoundFileCount().Result.Value;
+
+                onSoundpadInit();
             }
         }
 
@@ -38,7 +46,6 @@ namespace VRCSoundpad
         {
             switch (command)
             {
-
                 case "Random":
                     soundpad.PlaySound(random.Next(1, totalCountOfSounds));
 
@@ -95,61 +102,13 @@ namespace VRCSoundpad
                     {
                         soundpad.PlaySound(int.Parse(command));
                     }
-                    catch { }
+                    catch
+                    {
+                        Console.WriteLine($"Failed to parse sound id! (Non-numeric id? {command})");
+                    }
 
                     break;
             }
-            /*
-            if (command == "Random")
-                soundpad.PlaySound(random.Next(1, totalCountOfSounds));
-            else if (command == "SmartRandom")
-            {
-                if (playedRandom.Count >= totalCountOfSounds)
-                    playedRandom.Clear();
-
-                int randId;
-                do
-                {
-                    randId = random.Next(1, totalCountOfSounds);
-                }
-                while (playedRandom.ContainsKey(randId));
-
-                playedRandom[randId] = true;
-                soundpad.PlaySound(randId);
-            }
-            else if (command == "Stop")
-            {
-                soundpad.StopSound();
-            }
-            else if (command == "TogglePause")
-            {
-                soundpad.TogglePause();
-            }
-            else if (command == "PlayLastPlayed")
-            {
-                soundpad.PlayPreviouslyPlayedSound();
-            }
-            else if (command == "PlaySelectedSound")
-            {
-                soundpad.PlaySelectedSound();
-            }
-            else if (command == "Forward1Sec")
-            {
-                soundpad.Jump(1000);
-            }
-            else if (command == "Forward3Sec")
-            {
-                soundpad.Jump(3000);
-            }
-            else
-            {
-                try
-                {
-                    soundpad.PlaySound(int.Parse(command));
-                }
-                catch { }
-            }
-            */
         }
     }
 }

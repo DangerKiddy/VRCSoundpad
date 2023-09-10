@@ -5,13 +5,15 @@ namespace VRCSoundpad
 {
     internal class OSC
     {
+        private const string ipAddress = "127.0.0.1";
+        private const int port = 9001;
+
         private static CancellationTokenSource recvThreadCts;
         private static Socket receiver;
         public static void Init()
         {
-
             receiver = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            receiver.Bind(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 9001));
+            receiver.Bind(new IPEndPoint(IPAddress.Parse(ipAddress), port));
         }
 
         public static void Listen()
@@ -34,7 +36,7 @@ namespace VRCSoundpad
             }
         }
 
-        private static byte[] buffer = new byte[2048 * 2];
+        private static byte[] buffer = new byte[4096];
         private const string soundpadAvatarAddress = "/avatar/parameters/SNDP_";
         private static void Receive()
         {
@@ -50,12 +52,7 @@ namespace VRCSoundpad
 
                 Array.Clear(buffer, 0, bytesReceived);
             }
-            catch (Exception e)
-            {
-                // Ignore as this is most likely a timeout exception
-                Console.WriteLine("Failed to receive message: {0}", e.Message);
-                return;
-            }
+            catch { }
         }
 
         struct Msg
@@ -114,7 +111,7 @@ namespace VRCSoundpad
                     break;
             }
 
-            msg.value = value == null ? 0 : value;
+            msg.value = value ?? 0;
             msg.success = true;
 
             return msg;
