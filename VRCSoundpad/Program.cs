@@ -1,4 +1,5 @@
 ﻿using SoundpadConnector;
+
 namespace VRCSoundpad
 {
     internal class Program
@@ -6,9 +7,10 @@ namespace VRCSoundpad
         private static Soundpad soundpad;
 
         private static int totalCountOfSounds = 0;
-        private static Random random = new Random();
         private delegate void OnSoundpadInit();
         private static OnSoundpadInit onSoundpadInit;
+
+        private static Random random = new Random();
         static void Main(string[] args)
         {
             InitSoundpad();

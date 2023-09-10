@@ -5,6 +5,8 @@ namespace VRCSoundpad
 {
     internal class OSC
     {
+        private const string soundpadAvatarAddress = "/avatar/parameters/SNDP_";
+
         private const string ipAddress = "127.0.0.1";
         private const int port = 9001;
 
@@ -36,8 +38,10 @@ namespace VRCSoundpad
                 ThreadPool.QueueUserWorkItem(new WaitCallback(ct =>
                 {
                     var token = (CancellationToken)ct;
+
                     while (!token.IsCancellationRequested)
                         Receive();
+
                 }), newToken.Token);
 
                 recvThreadCts = newToken;
@@ -47,7 +51,6 @@ namespace VRCSoundpad
         }
 
         private static byte[] buffer = new byte[4096];
-        private const string soundpadAvatarAddress = "/avatar/parameters/SNDP_";
         private static void Receive()
         {
             try
