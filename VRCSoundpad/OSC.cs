@@ -1,5 +1,7 @@
 ﻿using System.Net;
 using System.Net.Sockets;
+using System.Runtime.InteropServices;
+using System.Text;
 
 namespace VRCSoundpad
 {
@@ -10,14 +12,12 @@ namespace VRCSoundpad
         private const string ipAddress = "127.0.0.1";
         private const int port = 9001;
 
-        private static CancellationTokenSource recvThreadCts;
-        private static Socket receiver;
+        private static UdpClient udp;
         public static void Init()
         {
             try
             {
-                receiver = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-                receiver.Bind(new IPEndPoint(IPAddress.Parse(ipAddress), port));
+                udp = new UdpClient(port);
             }
             catch
             {
@@ -25,47 +25,51 @@ namespace VRCSoundpad
             }
         }
 
-        public static void Listen()
+        public static void StartListening()
         {
-            if (receiver == null)
-                return;
+            Listen();
+        }
 
+        private static async void Listen()
+        {
             while (true)
             {
-                recvThreadCts?.Cancel();
+                Receive();
 
-                var newToken = new CancellationTokenSource();
-                ThreadPool.QueueUserWorkItem(new WaitCallback(ct =>
-                {
-                    var token = (CancellationToken)ct;
-
-                    while (!token.IsCancellationRequested)
-                        Receive();
-
-                }), newToken.Token);
-
-                recvThreadCts = newToken;
-
-                Thread.Sleep(1);
+                await Task.Delay(TimeSpan.FromMilliseconds(100));
             }
         }
 
-        private static byte[] buffer = new byte[4096];
-        private static void Receive()
+        private static async void Receive()
         {
             try
             {
-                var bytesReceived = receiver.Receive(buffer, buffer.Length, SocketFlags.None);
+                var data = await udp.ReceiveAsync();
 
-                Msg msg = ParseOSC(buffer, bytesReceived);
+                Msg msg = ParseOSC(data.Buffer, data.Buffer.Length);
                 if (msg.success && msg.address.StartsWith(soundpadAvatarAddress) && msg.value is bool && (bool)msg.value == true)
                 {
                     Program.ReceiveSoundpadCommand(msg.address.Replace(soundpadAvatarAddress, ""));
                 }
-
-                Array.Clear(buffer, 0, bytesReceived);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{ex.Message}");
+            }
+        }
+
+        private static void AlignStringBytes(ref string str)
+        {
+            int strLen = str.Length;
+            if (strLen % 4 != 0)
+            {
+                strLen += 4 - (strLen % 4);
+            }
+
+            for (int i = str.Length; i < strLen; i++)
+            {
+                str += '\0';
+            }
         }
 
         struct Msg

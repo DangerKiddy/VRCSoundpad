@@ -30,7 +30,7 @@ namespace VRCSoundpad
         private static void InitOSC()
         {
             OSC.Init();
-            OSC.Listen();
+            OSC.StartListening();
         }
 
         private static void SoundpadOnStatusChanged(object sender, EventArgs e)
